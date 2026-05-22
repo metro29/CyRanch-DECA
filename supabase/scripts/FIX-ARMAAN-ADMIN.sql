@@ -1,0 +1,2 @@
+-- Use ONE-SHOT-ADMIN-FIX.sql instead (this file redirects you there)
+-- Run: supabase/scripts/ONE-SHOT-ADMIN-FIX.sql
