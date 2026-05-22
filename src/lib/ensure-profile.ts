@@ -1,3 +1,5 @@
+import "server-only";
+
 import { isBootstrapAdminEmail } from "@/lib/bootstrap-admins";
 import { isAdminRole } from "@/lib/roles";
 import { createAdminClient } from "@/lib/supabase/admin";

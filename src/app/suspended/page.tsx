@@ -1,5 +1,5 @@
 import { SuspendedCard } from "@/components/suspended/suspended-card";
-import { getOwnProfile } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 

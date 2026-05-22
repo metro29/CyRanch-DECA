@@ -1,12 +1,12 @@
 import { Header } from "@/components/layout/header";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { asHeaderProfile, getOwnProfile } from "@/lib/profile";
+import { asHeaderProfile, getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { getAppSettings } from "@/lib/settings";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -26,28 +26,32 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  let user: { id: string; email?: string | null } | null = null;
   let profile: ReturnType<typeof asHeaderProfile> = null;
   let applicationStatus: string | null = null;
   let applicationsOpen = false;
 
-  if (user) {
-    const [{ data: p }, { data: app }, settings] = await Promise.all([
-      getOwnProfile(supabase, user, "role, full_name"),
-      supabase
-        .from("applications")
-        .select("status")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-      getAppSettings(supabase),
-    ]);
-    profile = asHeaderProfile(p);
-    applicationStatus = app?.status ?? null;
-    applicationsOpen = settings.applications_open;
+  try {
+    const supabase = await createClient();
+    const { data: auth } = await supabase.auth.getUser();
+    user = auth.user;
+
+    if (user) {
+      const [{ data: p }, { data: app }, settings] = await Promise.all([
+        getOwnProfile(supabase, user, "role, full_name"),
+        supabase
+          .from("applications")
+          .select("status")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        getAppSettings(supabase),
+      ]);
+      profile = asHeaderProfile(p);
+      applicationStatus = app?.status ?? null;
+      applicationsOpen = settings.applications_open;
+    }
+  } catch (err) {
+    console.error("[layout] init failed:", err);
   }
 
   return (

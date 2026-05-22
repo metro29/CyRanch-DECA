@@ -1,4 +1,4 @@
-import { getOwnProfile } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";

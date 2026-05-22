@@ -2,7 +2,7 @@ import { ApplicationsClosed } from "@/components/application/applications-closed
 import { MultiStepForm } from "@/components/application/multi-step-form";
 import { isApplicationLocked, parseAnswers } from "@/lib/applications";
 import { canAccessApplyForm } from "@/lib/navigation";
-import { getOwnProfile } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { getAppSettings } from "@/lib/settings";
 import type { Application } from "@/types/database";

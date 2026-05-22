@@ -1,7 +1,8 @@
 import { AccountStatusCard } from "@/components/club/account-status-card";
 import { SettingsPanel } from "@/components/club/settings-panel";
 import { PageShell } from "@/components/layout/page-shell";
-import { getOwnProfile, resolveIsAdmin } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
+import { resolveIsAdmin } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 import { createClient } from "@/lib/supabase/server";

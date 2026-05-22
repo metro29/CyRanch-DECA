@@ -1,3 +1,5 @@
+import "server-only";
+
 import { isBootstrapAdminEmail } from "@/lib/bootstrap-admins";
 import {
   canAutoRepairProfile,
@@ -14,7 +16,6 @@ type AuthUserLike = {
   user_metadata?: Record<string, unknown>;
 };
 
-/** Normalized profile row from DB or bootstrap fallback */
 export type ProfileLookup = {
   id?: string;
   email?: string;
@@ -148,11 +149,4 @@ export async function getOwnProfile(
   }
 
   return ok(null);
-}
-
-export function resolveIsAdmin(
-  role: unknown,
-  email: string | null | undefined
-): boolean {
-  return isAdminRole(role) || isBootstrapAdminEmail(email);
 }

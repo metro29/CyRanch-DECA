@@ -1,8 +1,8 @@
 import { HomeMarketing } from "@/components/home/home-marketing";
-import { getOwnProfile } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { resolveUserHomePath } from "@/lib/navigation";
-import { resolveIsAdmin } from "@/lib/profile";
+import { resolveIsAdmin } from "@/lib/roles";
 import { getAppSettings } from "@/lib/settings";
 
 export default async function HomePage() {

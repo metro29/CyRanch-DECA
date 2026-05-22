@@ -1,6 +1,7 @@
 import { FollowUsPanel } from "@/components/club/follow-us-panel";
 import { PageShell } from "@/components/layout/page-shell";
-import { getOwnProfile, resolveIsAdmin } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
+import { resolveIsAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import type { ClubInfo, ClubSocial } from "@/types/database";
 export default async function FollowUsPage() {

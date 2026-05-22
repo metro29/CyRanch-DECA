@@ -1,15 +1,14 @@
 "use client";
 
-/**
- * Root error UI — must define its own <html> and <body>.
- * Keep this file minimal to avoid RSC client manifest issues on Windows.
- */
 export default function GlobalError({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const isDev = process.env.NODE_ENV === "development";
+
   return (
     <html lang="en">
       <body
@@ -23,9 +22,23 @@ export default function GlobalError({
       >
         <h1 style={{ fontSize: "1.5rem" }}>Something went wrong</h1>
         <p style={{ color: "#666", maxWidth: 480 }}>
-          Stop the dev server, run{" "}
-          <strong>npm run dev:clean</strong>, then reload.
+          {isDev
+            ? "Stop the dev server, run npm run dev:clean, then reload."
+            : "Refresh the page. If this persists, confirm Supabase env vars are set on Vercel and redeploy."}
         </p>
+        {error?.message && (
+          <pre
+            style={{
+              marginTop: 12,
+              fontSize: 12,
+              color: "#b91c1c",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
+            {error.message}
+          </pre>
+        )}
         <button
           type="button"
           onClick={() => reset()}

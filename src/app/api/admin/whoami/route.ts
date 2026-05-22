@@ -1,6 +1,7 @@
 import { requireAdmin } from "@/lib/admin-auth";
 import { canAutoRepairProfile } from "@/lib/ensure-profile";
-import { getOwnProfile, resolveIsAdmin } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
+import { resolveIsAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 

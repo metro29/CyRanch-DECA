@@ -1,6 +1,7 @@
 import { OfficersPanel } from "@/components/club/officers-panel";
 import { PageShell } from "@/components/layout/page-shell";
-import { getOwnProfile, resolveIsAdmin } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
+import { resolveIsAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import type { Officer } from "@/types/database";
 export default async function OfficersPage() {

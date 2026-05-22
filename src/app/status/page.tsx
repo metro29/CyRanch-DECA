@@ -2,7 +2,7 @@ import { ReadOnlyApplication } from "@/components/application/read-only-applicat
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { isApplicationLocked, parseAnswers } from "@/lib/applications";
-import { getOwnProfile } from "@/lib/profile";
+import { getOwnProfile } from "@/lib/profile.server";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
 import type { Application, ApplicationStatus } from "@/types/database";

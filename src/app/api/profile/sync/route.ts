@@ -1,5 +1,5 @@
 import { ensureProfileForAuthUser } from "@/lib/ensure-profile";
-import { resolveIsAdmin } from "@/lib/profile";
+import { resolveIsAdmin } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 

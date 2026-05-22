@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useIsAdmin } from "@/hooks/use-is-admin";
 import { createClient } from "@/lib/supabase/client";
-import { resolveIsAdmin } from "@/lib/profile";
+import { resolveIsAdmin } from "@/lib/roles";
 import { ADMIN_NAV, AUTH_NAV, PUBLIC_NAV } from "@/lib/site-nav";
 import type { ApplicationStatus, Profile } from "@/types/database";
 import { cn } from "@/lib/utils";
