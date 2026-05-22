@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/header";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import { getOwnProfile, resolveIsAdmin } from "@/lib/profile";
+import { asHeaderProfile, getOwnProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { getAppSettings } from "@/lib/settings";
 
@@ -31,7 +31,7 @@ export default async function RootLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let profile = null;
+  let profile: ReturnType<typeof asHeaderProfile> = null;
   let applicationStatus: string | null = null;
   let applicationsOpen = false;
 
@@ -45,7 +45,7 @@ export default async function RootLayout({
         .maybeSingle(),
       getAppSettings(supabase),
     ]);
-    profile = p;
+    profile = asHeaderProfile(p);
     applicationStatus = app?.status ?? null;
     applicationsOpen = settings.applications_open;
   }

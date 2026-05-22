@@ -16,6 +16,7 @@ interface Whoami {
   profileIdMatchesUser?: boolean;
   profileError?: string | null;
   userId?: string;
+  serviceRoleConfigured?: boolean;
 }
 
 interface AccountStatusCardProps {

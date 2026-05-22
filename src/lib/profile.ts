@@ -5,7 +5,8 @@ import {
 } from "@/lib/ensure-profile";
 import { isAdminRole } from "@/lib/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Profile, UserRole } from "@/types/database";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 
 type AuthUserLike = {
   id: string;
@@ -13,18 +14,74 @@ type AuthUserLike = {
   user_metadata?: Record<string, unknown>;
 };
 
-export async function getOwnProfile<
-  T extends string = "id, email, full_name, role, status, grade",
->(
+/** Normalized profile row from DB or bootstrap fallback */
+export type ProfileLookup = {
+  id?: string;
+  email?: string;
+  full_name?: string | null;
+  role?: UserRole | string | null;
+  status?: string | null;
+  grade?: string | null;
+};
+
+export type ProfileLookupResult = {
+  data: ProfileLookup | null;
+  error: PostgrestError | { message: string } | null;
+};
+
+function bootstrapProfile(user: AuthUserLike): ProfileLookup {
+  return {
+    id: user.id,
+    email: user.email ?? undefined,
+    full_name: null,
+    role: "admin",
+    status: "active",
+    grade: null,
+  };
+}
+
+function normalizeRow(row: unknown): ProfileLookup | null {
+  if (!row || typeof row !== "object") return null;
+  const r = row as ProfileLookup;
+  return {
+    id: r.id,
+    email: r.email,
+    full_name: r.full_name ?? null,
+    role: r.role ?? null,
+    status: r.status ?? null,
+    grade: r.grade ?? null,
+  };
+}
+
+function ok(data: ProfileLookup | null): ProfileLookupResult {
+  return { data, error: null };
+}
+
+function fail(message: string): ProfileLookupResult {
+  return { data: null, error: { message } };
+}
+
+export function asHeaderProfile(
+  row: ProfileLookup | null | undefined
+): Pick<Profile, "role" | "full_name"> | null {
+  if (!row) return null;
+  const role: UserRole = isAdminRole(row.role) ? "admin" : "user";
+  return {
+    role,
+    full_name: typeof row.full_name === "string" ? row.full_name : null,
+  };
+}
+
+export async function getOwnProfile(
   supabase: SupabaseClient,
   user: AuthUserLike,
-  columns: T = "id, email, full_name, role, status, grade" as T
-) {
+  columns = "id, email, full_name, role, status, grade"
+): Promise<ProfileLookupResult> {
   if (user.email && canAutoRepairProfile()) {
     try {
       await ensureProfileForAuthUser(user);
     } catch {
-      /* logged below via admin read */
+      /* try admin read below */
     }
 
     try {
@@ -37,7 +94,7 @@ export async function getOwnProfile<
         .maybeSingle();
 
       if (byId.data) {
-        return byId;
+        return ok(normalizeRow(byId.data));
       }
 
       const byEmail = await admin
@@ -48,43 +105,27 @@ export async function getOwnProfile<
         .maybeSingle();
 
       if (byEmail.data) {
-        return byEmail;
+        return ok(normalizeRow(byEmail.data));
       }
 
       if (isBootstrapAdminEmail(user.email)) {
-        return {
-          data: {
-            id: user.id,
-            email: user.email,
-            full_name: null,
-            role: "admin",
-            status: "active",
-            grade: null,
-          } as Record<string, unknown>,
-          error: null,
-          count: null,
-          status: 200,
-          statusText: "OK",
-        };
+        return ok(bootstrapProfile(user));
       }
 
-      return byId.error ? byId : byEmail;
+      if (byId.error) {
+        return fail(byId.error.message);
+      }
+      if (byEmail.error) {
+        return fail(byEmail.error.message);
+      }
+      return ok(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Admin profile read failed";
+      const message =
+        err instanceof Error ? err.message : "Admin profile read failed";
       if (isBootstrapAdminEmail(user.email)) {
-        return {
-          data: {
-            id: user.id,
-            email: user.email,
-            role: "admin",
-          } as Record<string, unknown>,
-          error: null,
-          count: null,
-          status: 200,
-          statusText: "OK",
-        };
+        return ok(bootstrapProfile(user));
       }
-      return { data: null, error: { message }, count: null, status: 500, statusText: "" };
+      return fail(message);
     }
   }
 
@@ -94,18 +135,19 @@ export async function getOwnProfile<
     .eq("id", user.id)
     .maybeSingle();
 
-  if (!result.data && isBootstrapAdminEmail(user.email)) {
-    return {
-      ...result,
-      data: {
-        id: user.id,
-        email: user.email,
-        role: "admin",
-      } as Record<string, unknown>,
-    };
+  if (result.data) {
+    return ok(normalizeRow(result.data));
   }
 
-  return result;
+  if (isBootstrapAdminEmail(user.email)) {
+    return ok(bootstrapProfile(user));
+  }
+
+  if (result.error) {
+    return fail(result.error.message);
+  }
+
+  return ok(null);
 }
 
 export function resolveIsAdmin(

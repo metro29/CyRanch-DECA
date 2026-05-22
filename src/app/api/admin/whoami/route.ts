@@ -25,7 +25,7 @@ export async function GET() {
 
   const auth = await requireAdmin();
 
-  const profileId = (profile as { id?: string } | null)?.id;
+  const profileId = profile?.id;
 
   return NextResponse.json({
     loggedIn: true,
@@ -34,7 +34,7 @@ export async function GET() {
     profile: profile ?? null,
     profileIdMatchesUser: profileId ? profileId === user.id : null,
     profileError: error?.message ?? null,
-    isAdmin: resolveIsAdmin((profile as { role?: unknown } | null)?.role, user.email),
+    isAdmin: resolveIsAdmin(profile?.role, user.email),
     canUseAdminApi: !auth.error,
     serviceRoleConfigured: canAutoRepairProfile(),
   });
